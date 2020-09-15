@@ -18,6 +18,7 @@
 
 #include "co_routine_specific.h"
 #include "co_routine.h"
+#include "co_routine_inner.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <vector>
@@ -33,16 +34,25 @@ struct stRoutineSpecificData_t
 	int idx;
 };
 
-CO_ROUTINE_SPECIFIC(stRoutineSpecificData_t, __routine);
+#define __routine \
+ROUTINE_VAR(stRoutineSpecificData_t, __routine)
+ROUTINE_DEF(stRoutineSpecificData_t, __routine)
+
+#define __routine1 \
+ROUTINE_VAR(stRoutineSpecificData_t, __routine1)
+ROUTINE_DEF(stRoutineSpecificData_t, __routine1)
 
 void* RoutineFunc(void* args)
 {
 	co_enable_hook_sys();
+    stCoRoutine_t *co = GetCurrThreadCo();
 	stRoutineArgs_t* routine_args = (stRoutineArgs_t*)args;
-	__routine->idx = routine_args->routine_id;
-	while (true)
-	{
-		printf("%s:%d routine specific data idx %d\n", __func__, __LINE__, __routine->idx);
+	__routine.idx = routine_args->routine_id;
+	__routine1.idx = __routine.idx+1;
+    while (1)
+    {
+        __routine1.idx = __routine1.idx + 1;
+        printf("%s:%d routine specific data idx %d  %d\n", __func__, __LINE__, __routine.idx, __routine1.idx);
 		poll(NULL, 0, 1000);
 	}
 	return NULL;
