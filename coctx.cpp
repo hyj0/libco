@@ -85,7 +85,7 @@ enum
 //64 bit
 extern "C"
 {
-	extern void coctx_swap( coctx_t *,coctx_t* ) asm("coctx_swap");
+	extern void coctx_swap(struct coctx_t *,struct coctx_t* ) asm("coctx_swap");
 };
 #if defined(__i386__)
 int coctx_init( coctx_t *ctx )
@@ -112,7 +112,7 @@ int coctx_make( coctx_t *ctx,coctx_pfn_t pfn,const void *s,const void *s1 )
 	return 0;
 }
 #elif defined(__x86_64__)
-int coctx_make( coctx_t *ctx,coctx_pfn_t pfn,const void *s,const void *s1 )
+int coctx_make(struct coctx_t *ctx,coctx_pfn_t pfn,const void *s,const void *s1 )
 {
 	char *sp = ctx->ss_sp + ctx->ss_size;
 	sp = (char*) ((unsigned long)sp & -16LL  );
@@ -128,7 +128,7 @@ int coctx_make( coctx_t *ctx,coctx_pfn_t pfn,const void *s,const void *s1 )
 	return 0;
 }
 
-int coctx_init( coctx_t *ctx )
+int coctx_init(struct coctx_t *ctx )
 {
 	memset( ctx,0,sizeof(*ctx));
 	return 0;

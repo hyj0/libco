@@ -41,8 +41,8 @@ int main()
 	return 0;
 }
 */
-extern int 	co_setspecific( pthread_key_t key, const void *value );
-extern void *	co_getspecific( pthread_key_t key );
+/*extern int 	co_setspecific( pthread_key_t key, const void *value );
+extern void *	co_getspecific( pthread_key_t key );*/
 
 #define CO_ROUTINE_SPECIFIC( name,y ) \
 \
@@ -105,7 +105,7 @@ name0 *clsRoutineData_routine_##name_y()\
     if( !p )\
     {\
        p = (name0*)calloc(1,sizeof( name0 ));\
-       int ret = co_setspecific( _routine_key_##name_y,p) ;\
+       int ret = co_setspecific( _routine_key_##name_y,(const void*)p) ;\
           if ( ret )\
           {\
               if ( p )\

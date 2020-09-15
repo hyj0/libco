@@ -42,7 +42,7 @@
 
 extern "C"
 {
-	extern void coctx_swap( coctx_t *,coctx_t* ) asm("coctx_swap");
+	extern void coctx_swap(struct coctx_t *,struct coctx_t* ) asm("coctx_swap");
 };
 using namespace std;
 stCoRoutine_t *GetCurrCo( stCoRoutineEnv_t *env );
@@ -463,6 +463,8 @@ struct stCoRoutine_t *co_create_env( stCoRoutineEnv_t * env, const stCoRoutineAt
 {
 
 	stCoRoutineAttr_t at;
+	at.stack_size = 128 * 1024;
+	at.share_stack = NULL;
 	if( attr )
 	{
 		memcpy( &at,attr,sizeof(at) );
@@ -1048,7 +1050,7 @@ void co_disable_hook_sys()
 		co->cEnableSysHook = 0;
 	}
 }
-bool co_is_enable_sys_hook()
+int co_is_enable_sys_hook()
 {
 	stCoRoutine_t *co = GetCurrThreadCo();
 	return ( co && co->cEnableSysHook );

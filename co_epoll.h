@@ -36,12 +36,17 @@ struct co_epoll_res
 	struct epoll_event *events;
 	struct kevent *eventlist;
 };
-int 	co_epoll_wait( int epfd,struct co_epoll_res *events,int maxevents,int timeout );
-int 	co_epoll_ctl( int epfd,int op,int fd,struct epoll_event * );
-int 	co_epoll_create( int size );
-struct 	co_epoll_res *co_epoll_res_alloc( int n );
-void 	co_epoll_res_free( struct co_epoll_res * );
-
+#ifdef __cplusplus
+extern "C" {
+#endif
+int co_epoll_wait(int epfd, struct co_epoll_res *events, int maxevents, int timeout);
+int co_epoll_ctl(int epfd, int op, int fd, struct epoll_event *);
+int co_epoll_create(int size);
+struct co_epoll_res *co_epoll_res_alloc(int n);
+void co_epoll_res_free(struct co_epoll_res *);
+#ifdef __cplusplus
+}
+#endif
 #else
 
 #include <sys/event.h>
@@ -81,12 +86,17 @@ struct co_epoll_res
 	struct epoll_event *events;
 	struct kevent *eventlist;
 };
+#ifdef __cplusplus
+extern "C" {
+#endif
 int 	co_epoll_wait( int epfd,struct co_epoll_res *events,int maxevents,int timeout );
 int 	co_epoll_ctl( int epfd,int op,int fd,struct epoll_event * );
 int 	co_epoll_create( int size );
 struct 	co_epoll_res *co_epoll_res_alloc( int n );
 void 	co_epoll_res_free( struct co_epoll_res * );
-
+#ifdef __cplusplus
+}
+#endif
 #endif
 #endif
 
