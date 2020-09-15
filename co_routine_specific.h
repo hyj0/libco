@@ -85,7 +85,7 @@ public:\
 static clsRoutineData_routine_##name<name> y;
 
 
-#define CO_ROUTINE_SPECIFIC1(name0, name_y,y ) \
+#define CO_ROUTINE_SPECIFIC1(name0, name_y,y, count) \
 \
 static pthread_once_t _routine_once_##name_y = PTHREAD_ONCE_INIT; \
 static pthread_key_t _routine_key_##name_y;\
@@ -104,7 +104,7 @@ name0 *clsRoutineData_routine_##name_y()\
     name0* p = (name0*)co_getspecific( _routine_key_##name_y );\
     if( !p )\
     {\
-       p = (name0*)calloc(1,sizeof( name0 ));\
+       p = (name0*)calloc(count,sizeof( name0 ));\
        int ret = co_setspecific( _routine_key_##name_y,(const void*)p) ;\
           if ( ret )\
           {\
@@ -117,5 +117,45 @@ name0 *clsRoutineData_routine_##name_y()\
     }\
     return p;\
 }
-#define ROUTINE_DEF(name, y) CO_ROUTINE_SPECIFIC1( name, name##y, y )
-#define ROUTINE_VAR(name, y) (*clsRoutineData_routine_##name##y())
+#define CO_ROUTINE_SPECIFIC_POINT(name0, name_y,y, count) \
+\
+static pthread_once_t _routine_once_##name_y = PTHREAD_ONCE_INIT; \
+static pthread_key_t _routine_key_##name_y;\
+static int _routine_init_##name_y = 0;\
+static void _routine_make_key_##name_y() \
+{\
+   (void) pthread_key_create(&_routine_key_##name_y, NULL); \
+}\
+name0 **clsRoutineData_routine_##name_y()\
+{\
+    if( !_routine_init_##name_y ) \
+    {\
+       pthread_once( &_routine_once_##name_y,_routine_make_key_##name_y );\
+       _routine_init_##name_y = 1;\
+    }\
+    name0** p = (name0**)co_getspecific( _routine_key_##name_y );\
+    if( !p )\
+    {\
+       p = (name0**)calloc(count,sizeof( void* ));\
+       int ret = co_setspecific( _routine_key_##name_y,(const void*)p) ;\
+          if ( ret )\
+          {\
+              if ( p )\
+              {\
+                  free(p);\
+                  p = NULL;\
+              }\
+          }\
+    }\
+    return p;\
+}
+
+#define ROUTINE_DEF_ST(name, y) CO_ROUTINE_SPECIFIC1( name, name##y, y, 1)
+#define ROUTINE_VAR_ST(name, y) (*clsRoutineData_routine_##name##y())
+
+#define ROUTINE_DEF_ARR(name, y, count) CO_ROUTINE_SPECIFIC1( name, name##y, y, count)
+#define ROUTINE_VAR_ARR(name, y) clsRoutineData_routine_##name##y()
+
+#define ROUTINE_DEF_POINT(name, y) CO_ROUTINE_SPECIFIC_POINT( name, name##y, y, 1)
+#define ROUTINE_VAR_POINT(name, y) (*clsRoutineData_routine_##name##y())
+

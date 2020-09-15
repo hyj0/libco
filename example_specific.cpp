@@ -23,7 +23,13 @@
 #include <stdio.h>
 #include <vector>
 #include <iostream>
+#include <cstring>
 using namespace std;
+#define LVAR(var)   " " << #var << "="<< var
+#define LOG_COUT cout << __FILE__ << ":" << __LINE__ <<  " at " << __FUNCTION__ << " "
+#define LOG_ENDL_ERR      LVAR(errno) << " err=" << strerror(errno) << endl
+#define LOG_ENDL " " << endl;
+
 struct stRoutineArgs_t
 {
 	stCoRoutine_t* co;
@@ -35,12 +41,16 @@ struct stRoutineSpecificData_t
 };
 
 #define __routine \
-ROUTINE_VAR(stRoutineSpecificData_t, __routine)
-ROUTINE_DEF(stRoutineSpecificData_t, __routine)
+ROUTINE_VAR_ST(stRoutineSpecificData_t, __routine)
+ROUTINE_DEF_ST(stRoutineSpecificData_t, __routine)
 
 #define __routine1 \
-ROUTINE_VAR(stRoutineSpecificData_t, __routine1)
-ROUTINE_DEF(stRoutineSpecificData_t, __routine1)
+ROUTINE_VAR_ARR(stRoutineSpecificData_t, __routine1)
+ROUTINE_DEF_ARR(stRoutineSpecificData_t, __routine1, 10)
+
+#define __routine2 \
+ROUTINE_VAR_POINT(stRoutineSpecificData_t, __routine2)
+ROUTINE_DEF_POINT(stRoutineSpecificData_t, __routine2)
 
 void* RoutineFunc(void* args)
 {
@@ -48,11 +58,15 @@ void* RoutineFunc(void* args)
     stCoRoutine_t *co = GetCurrThreadCo();
 	stRoutineArgs_t* routine_args = (stRoutineArgs_t*)args;
 	__routine.idx = routine_args->routine_id;
-	__routine1.idx = __routine.idx+1;
+	__routine1[0].idx = __routine.idx+1;
+    __routine2 = (stRoutineSpecificData_t*)malloc(sizeof(stRoutineSpecificData_t*));
+    __routine2->idx = 2;
     while (1)
     {
-        __routine1.idx = __routine1.idx + 1;
-        printf("%s:%d routine specific data idx %d  %d\n", __func__, __LINE__, __routine.idx, __routine1.idx);
+        LOG_COUT << LVAR(__routine2) << LVAR(__routine2->idx) << LOG_ENDL;
+        __routine1[0].idx = __routine1->idx + 1;
+//        printf("%s:%d routine specific data idx %d  %d\n", __func__, __LINE__, __routine.idx, __routine1[0].idx);
+        LOG_COUT << LVAR(co) << LVAR(__routine.idx) << LVAR(__routine1->idx) << LVAR(__routine1) << LOG_ENDL;
 		poll(NULL, 0, 1000);
 	}
 	return NULL;
